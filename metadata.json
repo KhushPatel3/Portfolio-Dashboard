@@ -1,6 +1,6 @@
 {
-  "name": "Terminal Portfolio - Investment Dashboard",
-  "description": "Aestehic professional Bloomberg-style personal investment portfolio tracker with live analytics, dividend schedules, transaction logs, and Google Sheets sync.",
+  "name": "Stockfolio (Terminal Portfolio Investment Dashboard)",
+  "description": "Bloomberg-style personal investment portfolio tracker with live analytics, allocation drill-downs, dividend schedules, transaction logs, and Google Sheets sync.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

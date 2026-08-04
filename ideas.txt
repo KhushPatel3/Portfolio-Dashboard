@@ -1,0 +1,19 @@
+- Add a feature to the SettingsPage that allows users to export their portfolio holdings and transaction history as a CSV file to their local machine.
+- Create a price alert system where users can set target price thresholds for specific stock tickers and receive a visual notification in the Header when the current price hits the target.
+- Implement a theme switcher in the SettingsPage that allows users to toggle between the current 'Dark' mode and a new 'High-Contrast Light' mode for better readability during the day.
+- Enhance the CommandPaletteModal to support fuzzy searching across all tickers and recent transaction history, providing a list of clickable results that open the StockDetailModal.
+- Implement a simple localStorage backup for the current portfolio view settings and user preferences so they persist across page refreshes.
+- Use Google search data to access real-time info with search grounding to give latest news and stock updates.
+- When I delete some transactions and manually refresh, it adds 4 fake values. Ticker logo should not come from a file but outsourced, as there are going to be hundreds of tickers and new ones every time.
+
+    In the dashboard there is section allocation, there should be options for more kids of pie graphs like industries, countries (which replace the country map exposure), type (etf, stocks, etc.), positions (having all of the tickers and weighting them by percentage and in the middle having the name, amount in nzd, and percentage of graph, regions, sectors
+
+    Transactions should be editable through the dashboard without going to view all.
+
+    in the portfolio prerformance, there should be an option where it shows how much i've invested with grey dotted line with how much my portfolio is worth.
+
+    time zones should not be nzd, aud, it should be the actual name (abbreviated).
+
+    when looking at a ticker future outlook, all figures should come from the api and ai search.
+
+  - 
