@@ -272,7 +272,7 @@ export const CommandPaletteModal: React.FC = () => {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: -10 }}
         transition={{ duration: 0.18, ease: 'easeOut' }}
-        className="bg-[#121622] border border-[#262f42] rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden font-mono text-slate-100 flex flex-col max-h-[80vh]"
+        className="bg-[#121622] border border-[#262f42] rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden  text-slate-100 flex flex-col max-h-[80vh]"
       >
         {/* Search Header */}
         <div className="px-4 py-3.5 bg-[#171c2b] border-b border-[#262f42] flex items-center gap-3">
@@ -287,7 +287,7 @@ export const CommandPaletteModal: React.FC = () => {
             }}
             onKeyDown={handleKeyDownList}
             placeholder="Type a command, page, or ticker (e.g. 'rebalance', 'NVDA', 'transactions')..."
-            className="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none font-mono"
+            className="w-full bg-transparent text-sm text-slate-100 placeholder-slate-500 focus:outline-none "
           />
           <button
             onClick={() => setIsCommandPaletteOpen(false)}
@@ -334,7 +334,7 @@ export const CommandPaletteModal: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="text-[10px] text-slate-500 font-mono shrink-0 ml-2">
+                  <div className="text-[10px] text-slate-500  shrink-0 ml-2">
                     {isSelected ? '⏎ Enter' : ''}
                   </div>
                 </button>

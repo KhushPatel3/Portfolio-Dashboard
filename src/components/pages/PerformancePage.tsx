@@ -4,32 +4,19 @@ import { StatCard } from '../common/StatCard';
 import { TrendingUp, DollarSign, Award, Percent, Layers, ShieldCheck } from 'lucide-react';
 import {
   ResponsiveContainer,
-  AreaChart,
-  Area,
+
+
   XAxis,
   YAxis,
   Tooltip,
-  Legend,
+
 } from 'recharts';
 
 export const PerformancePage: React.FC = () => {
   const { performance, summary, settings } = usePortfolio();
 
-  // Portfolio Growth vs Invested Capital chart simulation
-  const growthData = Array.from({ length: 12 }).map((_, i) => {
-    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i];
-    const capitalProgress = summary.totalInvestedCapital * (0.5 + (i / 11) * 0.5);
-    const valueProgress = summary.portfolioValue * (0.45 + (i / 11) * 0.55 + Math.sin(i * 0.5) * 0.05);
-
-    return {
-      month,
-      investedCapital: Number(capitalProgress.toFixed(2)),
-      portfolioValue: Number(valueProgress.toFixed(2)),
-    };
-  });
-
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Title */}
       <div className="p-4 bg-[#141824] border border-[#212738] rounded-xl flex items-center justify-between">
         <div>
@@ -165,65 +152,7 @@ export const PerformancePage: React.FC = () => {
         </div>
       </div>
 
-      {/* Portfolio Growth Chart */}
-      <div className="p-5 bg-[#141824] border border-[#212738] rounded-xl space-y-4">
-        <div className="flex items-center justify-between border-b border-[#212738] pb-3">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-200">
-            Portfolio Growth vs Invested Capital Basis
-          </h3>
-          <span className="text-xs text-slate-400">12-Month Trailing View</span>
-        </div>
-
-        <div className="h-72 w-full">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={growthData}>
-              <defs>
-                <linearGradient id="valGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#64748b" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#64748b" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
-              <XAxis dataKey="month" stroke="#475569" fontSize={11} tickLine={false} />
-              <YAxis
-                stroke="#475569"
-                fontSize={11}
-                tickLine={false}
-                tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#0f172a',
-                  borderColor: '#334155',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                }}
-              />
-              <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
-              <Area
-                type="monotone"
-                dataKey="portfolioValue"
-                stroke="#10b981"
-                strokeWidth={2.5}
-                fill="url(#valGrad)"
-                name="Portfolio Value ($)"
-              />
-              <Area
-                type="monotone"
-                dataKey="investedCapital"
-                stroke="#64748b"
-                strokeWidth={2}
-                strokeDasharray="4 4"
-                fill="url(#costGrad)"
-                name="Invested Capital ($)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
     </div>
   );
 };
+

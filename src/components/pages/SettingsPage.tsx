@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
-import { generateGoogleSheetsTemplateCSV } from '../../services/googleSheets';
 import {
   Settings as SettingsIcon,
   Database,
@@ -32,7 +31,6 @@ export const SettingsPage: React.FC = () => {
     syncError,
     importCSV,
     exportTransactionsCSV,
-    resetToMockData,
     addPriceAlert,
     deletePriceAlert,
     togglePriceAlert,
@@ -82,17 +80,6 @@ export const SettingsPage: React.FC = () => {
     setTimeout(() => setSaveMessage(null), 3000);
   };
 
-  const handleDownloadTemplate = () => {
-    const template = generateGoogleSheetsTemplateCSV();
-    const encodedUri = encodeURI('data:text/csv;charset=utf-8,' + template);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', 'google_sheets_portfolio_template.csv');
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -112,7 +99,7 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Title */}
       <div className="p-4 bg-[#141824] border border-[#212738] rounded-xl flex items-center justify-between">
         <div>
@@ -127,7 +114,7 @@ export const SettingsPage: React.FC = () => {
       </div>
 
       {saveMessage && (
-        <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-xs flex items-center gap-2 font-mono">
+        <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-emerald-400 text-xs flex items-center gap-2 ">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{saveMessage}</span>
         </div>
@@ -167,7 +154,7 @@ export const SettingsPage: React.FC = () => {
                 PERMANENT CLOUD DATABASE CONNECTED & ACTIVE
               </span>
             </div>
-            <p className="text-xs text-slate-300 font-mono break-all">
+            <p className="text-xs text-slate-300  break-all">
               {settings.googleSheetsUrl || 'https://docs.google.com/spreadsheets/d/1KineticPortfolio_LiveSync_MasterSheet/edit'}
             </p>
           </div>
@@ -217,14 +204,6 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
-            <button
-              onClick={handleDownloadTemplate}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#20293d] hover:bg-[#28344e] border border-[#313d5a] rounded text-slate-200 font-semibold transition-colors"
-            >
-              <Download className="w-3.5 h-3.5 text-blue-400" />
-              <span>Template CSV</span>
-            </button>
-
             <label className="flex items-center gap-1.5 px-3 py-1.5 bg-[#20293d] hover:bg-[#28344e] border border-[#313d5a] rounded text-slate-200 font-semibold cursor-pointer transition-colors">
               <Upload className="w-3.5 h-3.5 text-emerald-400" />
               <span>Import CSV</span>
@@ -405,7 +384,7 @@ export const SettingsPage: React.FC = () => {
             Base Currency & Terminal Frequency
           </h3>
 
-          <div className="space-y-4 text-xs font-mono">
+          <div className="space-y-4 text-xs ">
             {/* Base Currency Preferences: strictly NZD, AUD, USD */}
             <div>
               <label className="block text-[11px] text-slate-400 mb-1 font-semibold uppercase">
@@ -460,7 +439,7 @@ export const SettingsPage: React.FC = () => {
             Pre-configured Finnhub API key is active for real-time stock quote feeds.
           </p>
 
-          <div className="space-y-3 text-xs font-mono">
+          <div className="space-y-3 text-xs ">
             <div>
               <label className="block text-[11px] text-slate-400 mb-1 font-semibold uppercase">
                 Active Finnhub API Key
@@ -481,22 +460,6 @@ export const SettingsPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Reset Data Danger Zone */}
-      <div className="p-4 bg-rose-500/5 border border-rose-500/20 rounded-xl flex items-center justify-between">
-        <div>
-          <span className="font-bold text-rose-400 text-xs block">Reset Local State</span>
-          <p className="text-[11px] text-slate-400">Revert all local modifications back to initial mock portfolio data.</p>
-        </div>
-
-        <button
-          onClick={resetToMockData}
-          className="flex items-center gap-1.5 px-4 py-2 rounded bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-400 font-bold text-xs transition-colors"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span>Reset to Mock Portfolio</span>
-        </button>
       </div>
     </div>
   );

@@ -121,7 +121,7 @@ export const PortfolioPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Page Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#141824] border border-[#212738] rounded-xl">
         <div>
@@ -380,7 +380,7 @@ export const PortfolioPage: React.FC = () => {
         </div>
 
         {/* Pagination Controls */}
-        <div className="p-3 bg-[#181e2e] border-t border-[#242d40] flex items-center justify-between text-xs text-slate-400 font-mono">
+        <div className="p-3 bg-[#181e2e] border-t border-[#242d40] flex items-center justify-between text-xs text-slate-400 ">
           <span>
             Showing page {currentPage} of {totalPages} ({sortedHoldings.length} holdings)
           </span>

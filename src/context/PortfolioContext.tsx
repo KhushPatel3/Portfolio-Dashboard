@@ -15,7 +15,7 @@ import {
   PriceAlert,
   CustomWatchlist,
 } from '../types';
-import { MOCK_TRANSACTIONS, STOCK_METADATA_DATABASE } from '../data/mockPortfolio';
+import { STOCK_METADATA_DATABASE } from '../data/mockPortfolio';
 import { marketDataService } from '../services/marketData';
 import {
   calculateHoldings,
@@ -60,7 +60,7 @@ interface PortfolioContextType {
   importCSV: (csvText: string) => boolean;
   exportTransactionsCSV: () => void;
   updateSettings: (newSettings: Partial<UserSettings>) => void;
-  resetToMockData: () => void;
+  resetData: () => void;
   refreshPricesNow: () => void;
   addPriceAlert: (alert: Omit<PriceAlert, 'id' | 'createdAt'>) => void;
   deletePriceAlert: (id: string) => void;
@@ -426,8 +426,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }));
   }, []);
 
-  const resetToMockData = useCallback(() => {
-    setTransactions(MOCK_TRANSACTIONS);
+  const resetData = useCallback(() => {
+    setTransactions([]);
     setSettings(DEFAULT_SETTINGS);
     setSyncError(null);
     localStorage.removeItem(LOCAL_STORAGE_TX_KEY);
@@ -467,7 +467,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         importCSV,
         exportTransactionsCSV,
         updateSettings,
-        resetToMockData,
+        resetData,
         refreshPricesNow,
         addPriceAlert,
         deletePriceAlert,

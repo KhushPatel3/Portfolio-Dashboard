@@ -55,18 +55,19 @@ export const RebalancingCalculator: React.FC = () => {
   const applyCurrentWeights = () => {
     const updated: Record<string, number> = {};
     holdings.forEach((h) => {
-      updated[h.ticker] = Number(h.weight.toFixed(1));
+      const weight = summary.portfolioValue > 0 ? (h.marketValue / summary.portfolioValue) * 100 : 0;
+      updated[h.ticker] = Number(weight.toFixed(1));
     });
     setTargetWeights(updated);
   };
 
-  const totalTargetWeight = Object.values(targetWeights).reduce((a, b) => a + b, 0);
+  const totalTargetWeight = Object.values(targetWeights).reduce((a: number, b: number) => a + b, 0);
   const totalPoolValue = summary.portfolioValue + Math.max(0, cashInjection);
 
   const rebalancePlan = holdings.map((h) => {
     const targetPct = targetWeights[h.ticker] || 0;
     const targetValue = totalPoolValue * (targetPct / 100);
-    const driftValue = targetValue - h.currentValue;
+    const driftValue = targetValue - h.marketValue;
     const currentPrice = quotes[h.ticker]?.price || h.currentPrice || 100;
     const sharesChange = currentPrice > 0 ? driftValue / currentPrice : 0;
 
@@ -74,11 +75,12 @@ export const RebalancingCalculator: React.FC = () => {
     if (driftValue > 5) action = 'BUY';
     else if (driftValue < -5) action = 'SELL';
 
+    const currentWeight = summary.portfolioValue > 0 ? (h.marketValue / summary.portfolioValue) * 100 : 0;
     return {
       ticker: h.ticker,
       companyName: h.companyName,
-      currentValue: h.currentValue,
-      currentWeight: h.weight,
+      currentValue: h.marketValue,
+      currentWeight: currentWeight,
       targetWeight: targetPct,
       targetValue,
       driftValue,
@@ -105,10 +107,9 @@ export const RebalancingCalculator: React.FC = () => {
         addTransaction({
           ticker: plan.ticker,
           type: plan.action === 'BUY' ? 'BUY' : 'SELL',
-          shares: Number(plan.sharesChange.toFixed(4)),
+          quantity: Number(plan.sharesChange.toFixed(4)),
           price: Number(plan.currentPrice.toFixed(2)),
           currency: settings.baseCurrency,
-          exchangeRate: 1,
           fee: 0,
           date: today,
           note: `Auto-rebalancing target trade (${plan.targetWeight}% target)`,
@@ -122,7 +123,7 @@ export const RebalancingCalculator: React.FC = () => {
   };
 
   return (
-    <div className="bg-[#121622] border border-[#262f42] rounded-xl p-6 font-mono space-y-6 shadow-xl">
+    <div className="bg-[#121622] border border-[#262f42] rounded-xl p-6  space-y-6 shadow-xl">
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[#262f42] pb-4">
         <div className="flex items-center gap-3">

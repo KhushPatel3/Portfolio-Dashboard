@@ -43,7 +43,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       className={`p-3.5 rounded bg-[#141414] border border-[#262626] ${accentClasses[accentColor]} transition-all hover:border-[#333333] relative overflow-hidden font-sans`}
     >
       <div className="flex items-start justify-between gap-2 mb-1">
-        <span className="text-[10px] font-mono tracking-widest text-gray-500 font-semibold uppercase">
+        <span className="text-[10px]  tracking-widest text-gray-500 font-semibold uppercase">
           {title}
         </span>
         {Icon && (
@@ -54,10 +54,10 @@ export const StatCard: React.FC<StatCardProps> = ({
       </div>
 
       <div className="flex items-baseline justify-between gap-2">
-        <div className="text-lg font-bold font-mono text-white tracking-tight">{value}</div>
+        <div className="text-lg font-bold  text-white tracking-tight">{value}</div>
         {change && (
           <span
-            className={`text-xs font-mono font-bold ${
+            className={`text-xs  font-bold ${
               isPositive !== undefined
                 ? isPositive
                   ? 'text-green-500'
@@ -71,7 +71,7 @@ export const StatCard: React.FC<StatCardProps> = ({
       </div>
 
       {(subtitle || footnote) && (
-        <div className="mt-1 flex items-center justify-between text-[10px] font-mono text-gray-500">
+        <div className="mt-1 flex items-center justify-between text-[10px]  text-gray-500">
           {subtitle && <span>{subtitle}</span>}
           {footnote && <span className="text-gray-600">{footnote}</span>}
         </div>

@@ -94,7 +94,7 @@ export const Sidebar: React.FC = () => {
           {isExpanded && (
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="text-xs font-mono font-bold tracking-wider text-slate-100 uppercase">
+              <span className="text-xs  font-bold tracking-wider text-slate-100 uppercase">
                 TERMINAL
               </span>
             </div>
@@ -103,7 +103,7 @@ export const Sidebar: React.FC = () => {
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             title={isExpanded ? 'Collapse Navigation to Icons' : 'Expand Navigation to show words'}
-            className="w-full flex items-center justify-center gap-2 py-1.5 px-2 rounded bg-[#161c2c] hover:bg-[#20293d] text-slate-300 border border-[#263148] transition-colors text-xs font-mono"
+            className="w-full flex items-center justify-center gap-2 py-1.5 px-2 rounded bg-[#161c2c] hover:bg-[#20293d] text-slate-300 border border-[#263148] transition-colors text-xs "
           >
             {isExpanded ? (
               <>
@@ -146,7 +146,7 @@ export const Sidebar: React.FC = () => {
                 key={item.id}
                 onClick={() => setActivePage(item.id)}
                 title={item.label}
-                className={`w-full flex items-center rounded-lg py-2.5 px-3 text-xs font-mono transition-all ${
+                className={`w-full flex items-center rounded-lg py-2.5 px-3 text-xs  transition-all ${
                   isExpanded ? 'justify-between' : 'justify-center'
                 } ${
                   isActive
@@ -161,7 +161,7 @@ export const Sidebar: React.FC = () => {
 
                 {isExpanded && item.badge && (
                   <span
-                    className={`px-1.5 py-0.2 text-[9px] rounded font-mono font-bold ${
+                    className={`px-1.5 py-0.2 text-[9px] rounded  font-bold ${
                       isActive
                         ? 'bg-emerald-500 text-black'
                         : 'bg-[#182030] text-slate-400 border border-[#263148]'
@@ -175,7 +175,7 @@ export const Sidebar: React.FC = () => {
           })}
 
           {/* Custom Watchlists Section */}
-          <div className="pt-4 mt-2 border-t border-[#1e2638] font-mono">
+          <div className="pt-4 mt-2 border-t border-[#1e2638] ">
             {isExpanded ? (
               <div className="space-y-3">
                 <div className="flex items-center justify-between px-1">
@@ -285,7 +285,7 @@ export const Sidebar: React.FC = () => {
                                   <CompanyLogo ticker={ticker} size="sm" />
                                   <span className="font-bold text-slate-200">{ticker}</span>
                                 </div>
-                                <div className="text-right font-mono">
+                                <div className="text-right ">
                                   <div className="text-slate-100 font-bold">${price.toFixed(2)}</div>
                                   <div className={`text-[9px] ${isUp ? 'text-emerald-400' : 'text-rose-400'}`}>
                                     {isUp ? '+' : ''}{changePct.toFixed(2)}%
@@ -316,7 +316,7 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Footer Live System Feed */}
-        <div className="p-2 border-t border-[#1e2638] bg-[#0a0d14] font-mono">
+        <div className="p-2 border-t border-[#1e2638] bg-[#0a0d14] ">
           {isExpanded ? (
             <div className="p-2 rounded bg-[#121622] border border-[#1e2638] space-y-1">
               <div className="flex items-center justify-between text-[10px]">

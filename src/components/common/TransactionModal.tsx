@@ -26,7 +26,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [tradingFee, setTradingFee] = useState<string>('1.99');
   const [fxFee, setFxFee] = useState<string>('0.50');
-  const [broker, setBroker] = useState<string>(settings.preferredBroker || 'Interactive Brokers');
+  const [broker, setBroker] = useState<string>('Interactive Brokers');
   const [notes, setNotes] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +40,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setDate(editTx.date || new Date().toISOString().split('T')[0]);
       setTradingFee(String(editTx.tradingFee || 0));
       setFxFee(String(editTx.fxFee || 0));
-      setBroker(editTx.broker || settings.preferredBroker);
+      setBroker(editTx.broker || 'Interactive Brokers');
       setNotes(editTx.notes || '');
     } else {
       // Auto-fill price from live quote if available
@@ -128,7 +128,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 15 }}
         transition={{ duration: 0.22, ease: 'easeOut' }}
-        className="bg-[#141824] border border-[#283144] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden font-mono text-slate-100"
+        className="bg-[#141824] border border-[#283144] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden  text-slate-100"
       >
         {/* Modal Header */}
         <div className="px-5 py-3.5 bg-[#181d2c] border-b border-[#283144] flex items-center justify-between">

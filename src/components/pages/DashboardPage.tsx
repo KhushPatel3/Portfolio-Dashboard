@@ -34,6 +34,8 @@ import {
   XAxis,
   YAxis,
   Tooltip,
+  ReferenceLine,
+  CartesianGrid,
 } from 'recharts';
 
 export const DashboardPage: React.FC = () => {
@@ -280,7 +282,7 @@ export const DashboardPage: React.FC = () => {
 
               {/* Timeframe selector */}
               <div className="flex items-center gap-1 bg-[#181818] p-1 rounded border border-[#222222] ml-2">
-                {(['1D', '5D', '1M', '6M', '1Y', '3Y'] as const).map((tf) => (
+                {(['1D', '5D', '1M', '6M', '1Y', '3Y', 'MAX'] as const).map((tf) => (
                   <button
                     key={tf}
                     onClick={() => setTimeframe(tf as TimeFrame)}
@@ -321,7 +323,7 @@ export const DashboardPage: React.FC = () => {
 
                 {/* Primary Portfolio Line */}
                 <Line
-                  type="monotone"
+                  type="linear"
                   dataKey={showAsPercent ? "PortfolioPercent" : "PortfolioValue"}
                   stroke="#3b82f6"
                   strokeWidth={3}
@@ -419,8 +421,10 @@ export const DashboardPage: React.FC = () => {
                     <stop offset={splitOffset} stopColor="#ef4444" stopOpacity={1} />
                   </linearGradient>
                 </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#222" vertical={false} />
                 <XAxis dataKey="day" stroke="#475569" fontSize={11} tickLine={false} />
                 <YAxis stroke="#475569" fontSize={11} tickLine={false} />
+                <ReferenceLine y={0} stroke="#475569" />
                 <Tooltip
                   contentStyle={{
                     backgroundColor: '#111111',
@@ -431,7 +435,7 @@ export const DashboardPage: React.FC = () => {
                   formatter={(val: any) => [`${settings.currencySymbol}${Number(val).toFixed(2)}`, 'Return']}
                 />
                 <Area
-                  type="monotone"
+                  type="linear"
                   dataKey="returnVal"
                   stroke="url(#splitColor)"
                   strokeWidth={2.5}
@@ -491,7 +495,7 @@ export const DashboardPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="space-y-2 font-mono">
+          <div className="space-y-2 ">
             {recentTxList.map((tx) => (
               <div
                 key={tx.id}
@@ -545,7 +549,7 @@ export const DashboardPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="space-y-2 font-mono">
+          <div className="space-y-2 ">
             {upcomingDivs.length === 0 ? (
               <p className="text-xs text-slate-500 py-4 text-center">
                 No upcoming dividend events detected.

@@ -132,7 +132,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddTransaction, onOpenAiIn
       </div>
 
       {/* Center Search & Live Last Updated Status Indicator */}
-      <div className="flex-1 max-w-md hidden md:flex items-center gap-3">
+      <div className="flex-1 max-w-2xl hidden md:flex items-center gap-3">
         <div className="flex-1 relative">
           <Search className="w-3.5 h-3.5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
@@ -140,7 +140,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddTransaction, onOpenAiIn
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="SEARCH TICKER, COMPANY, SECTOR..."
-            className="w-full bg-[#141414] border border-[#262626] rounded px-3 py-1.5 pl-8 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500 font-mono transition-all uppercase tracking-wider"
+            className="w-full bg-[#141414] border border-[#262626] rounded px-3 py-1.5 pl-8 text-xs text-gray-200 placeholder-gray-600 focus:outline-none focus:border-blue-500  transition-all uppercase tracking-wider"
           />
           {searchQuery && (
             <button
@@ -153,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddTransaction, onOpenAiIn
         </div>
 
         {/* Status Indicator showing last update time */}
-        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-[#141414] border border-[#262626] rounded text-[11px] font-mono text-gray-400 shrink-0">
+        <div className="hidden lg:flex items-center gap-2 px-2.5 py-1 bg-[#141414] border border-[#262626] rounded text-[11px]  text-gray-400 shrink-0">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -163,7 +163,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddTransaction, onOpenAiIn
       </div>
 
       {/* Right Actions */}
-      <div className="flex items-center gap-2.5 shrink-0 font-mono">
+      <div className="flex items-center gap-2.5 shrink-0 ">
         {/* Base Currency Select (NZD, AUD, USD) */}
         <div className="flex items-center bg-[#141414] border border-[#262626] rounded text-xs text-gray-300 px-2 py-1">
           <Globe className="w-3.5 h-3.5 mr-1.5 text-blue-400 shrink-0" />

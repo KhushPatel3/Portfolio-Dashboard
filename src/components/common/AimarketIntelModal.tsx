@@ -89,7 +89,7 @@ export const AiMarketIntelModal: React.FC<AiMarketIntelModalProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.94, y: 10 }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
-        className="bg-[#121622] border border-[#262f42] rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden font-mono text-slate-100"
+        className="bg-[#121622] border border-[#262f42] rounded-xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden  text-slate-100"
       >
         {/* Header */}
         <div className="px-6 py-4 bg-[#171c2b] border-b border-[#262f42] flex items-center justify-between">
@@ -136,7 +136,7 @@ export const AiMarketIntelModal: React.FC<AiMarketIntelModalProps> = ({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask specific market inquiry e.g., 'Why did NVDA jump?', 'Fed interest rate cuts & S&P 500 impact'..."
-                className="w-full bg-[#0d101a] border border-[#262f42] rounded-lg pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 font-mono"
+                className="w-full bg-[#0d101a] border border-[#262f42] rounded-lg pl-9 pr-4 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500/50 "
               />
             </div>
 

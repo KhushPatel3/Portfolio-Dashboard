@@ -48,7 +48,7 @@ export const DividendsPage: React.FC = () => {
   const paidDivs = dividends.filter((d) => d.status === 'PAID');
 
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Title */}
       <div className="p-4 bg-[#141824] border border-[#212738] rounded-xl flex items-center justify-between">
         <div>

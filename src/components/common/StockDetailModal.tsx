@@ -65,7 +65,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.92, y: 15 }}
         transition={{ duration: 0.22, ease: 'easeOut' }}
-        className="bg-[#121622] border border-[#262f42] rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl font-mono text-slate-100 no-scrollbar"
+        className="bg-[#121622] border border-[#262f42] rounded-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl  text-slate-100 no-scrollbar"
       >
         {/* Header */}
         <div className="px-6 py-4 bg-[#171c2b] border-b border-[#262f42] flex items-center justify-between sticky top-0 z-10">
@@ -353,7 +353,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
                 <Building2 className="w-4 h-4" />
                 Your Current Position Summary
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-mono">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs ">
                 <div>
                   <span className="text-slate-400">Shares Owned</span>
                   <p className="text-sm font-bold text-white mt-0.5">{holding.shares.toFixed(4)}</p>
@@ -397,7 +397,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
                 {stockTx.map((tx) => (
                   <div
                     key={tx.id}
-                    className="flex items-center justify-between p-2.5 bg-[#121622] rounded border border-[#222a3e] text-xs font-mono"
+                    className="flex items-center justify-between p-2.5 bg-[#121622] rounded border border-[#222a3e] text-xs "
                   >
                     <div className="flex items-center gap-3">
                       <span

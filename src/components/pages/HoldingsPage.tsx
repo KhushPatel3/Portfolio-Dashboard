@@ -6,7 +6,7 @@ export const HoldingsPage: React.FC = () => {
   const { holdings, summary, settings, setSelectedStockModal } = usePortfolio();
 
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Page Title Bar */}
       <div className="flex items-center justify-between p-4 bg-[#141824] border border-[#212738] rounded-xl">
         <div>

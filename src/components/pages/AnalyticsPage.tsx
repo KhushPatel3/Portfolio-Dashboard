@@ -16,7 +16,7 @@ export const AnalyticsPage: React.FC = () => {
   const { analytics, performance, holdings, settings, setSelectedStockModal } = usePortfolio();
 
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Title */}
       <div className="p-4 bg-[#141824] border border-[#212738] rounded-xl flex items-center justify-between">
         <div>
@@ -129,7 +129,7 @@ export const AnalyticsPage: React.FC = () => {
             Statistical Risk Profile
           </h3>
 
-          <div className="space-y-3 text-xs font-mono">
+          <div className="space-y-3 text-xs ">
             <div className="flex justify-between p-2.5 bg-[#181e2e] rounded border border-[#232b3f]">
               <span className="text-slate-400">Sharpe Ratio (Risk-Adjusted Return)</span>
               <span className="font-bold text-emerald-400">{performance.sharpeRatio} (Strong)</span>

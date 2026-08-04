@@ -41,7 +41,7 @@ export const AllocationPage: React.FC = () => {
   }));
 
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Title Bar */}
       <div className="p-4 bg-[#141824] border border-[#212738] rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div>
@@ -66,7 +66,7 @@ export const AllocationPage: React.FC = () => {
       </div>
 
       {/* Breadcrumb Navigation Trail */}
-      <div className="flex flex-wrap items-center gap-2 p-3 bg-[#141824] border border-[#212738] rounded-xl text-xs font-mono">
+      <div className="flex flex-wrap items-center gap-2 p-3 bg-[#141824] border border-[#212738] rounded-xl text-xs ">
         <span className="text-slate-500 uppercase font-bold text-[10px]">CURRENT PATH:</span>
         {path.map((node, index) => {
           const isLast = index === path.length - 1;
@@ -136,7 +136,7 @@ export const AllocationPage: React.FC = () => {
                 <Legend
                   verticalAlign="bottom"
                   height={36}
-                  formatter={(value) => <span className="text-[11px] text-slate-300 font-mono">{value}</span>}
+                  formatter={(value) => <span className="text-[11px] text-slate-300 ">{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -255,7 +255,7 @@ export const AllocationPage: React.FC = () => {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs font-mono">
+            <table className="w-full text-left text-xs ">
               <thead className="bg-[#181e2e] text-slate-400 text-[10px] uppercase border-b border-[#283248]">
                 <tr>
                   <th className="py-2.5 px-3">Ticker / Asset</th>

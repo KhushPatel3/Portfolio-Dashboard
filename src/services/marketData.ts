@@ -269,7 +269,16 @@ class MarketDataService {
     const highRiskCount = allOverlaps.filter((o) => o.overlapStatus === 'HIGH').length;
     let warning = 'Portfolio overlap is well-balanced across direct stocks and index ETFs.';
     if (highRiskCount > 0) {
-      warning = `Warning: ${highRiskCount} asset(s) have significant exposure overlapping between direct positions and ETF holdings.`;
+      const highRiskItems = allOverlaps.filter((o) => o.overlapStatus === 'HIGH');
+      const overlappingTickers = highRiskItems.map((o) => o.ticker).join(', ');
+      
+      const allEtfSources = new Set<string>();
+      highRiskItems.forEach(item => {
+        item.etfSources.forEach(s => allEtfSources.add(s.etfTicker));
+      });
+      const etfList = Array.from(allEtfSources).join(', ');
+      
+      warning = `Warning: ${highRiskCount} asset(s) (${overlappingTickers}) have significant exposure overlapping between direct positions and ETF holdings (${etfList}).`;
     }
 
     return {

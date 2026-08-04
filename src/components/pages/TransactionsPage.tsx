@@ -34,6 +34,7 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
   } = usePortfolio();
 
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'BUY' | 'SELL'>('ALL');
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   // Filter transactions
   const filteredTx = useMemo(() => {
@@ -49,28 +50,29 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
     });
   }, [transactions, typeFilter, searchQuery]);
 
-  // Group by Month (e.g. "August 2026", "July 2026")
-  const groupedByMonth = useMemo(() => {
+  // Group by Exact Date (YYYY-MM-DD)
+  const groupedByDate = useMemo(() => {
     const map: Record<string, Transaction[]> = {};
 
     for (const tx of filteredTx) {
-      const d = new Date(tx.date || new Date());
-      const monthYear = d.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-
-      if (!map[monthYear]) map[monthYear] = [];
-      map[monthYear].push(tx);
+      const dateStr = tx.date || new Date().toISOString().split('T')[0];
+      if (!map[dateStr]) map[dateStr] = [];
+      map[dateStr].push(tx);
     }
 
-    // Sort months descending
+    // Sort dates descending
     return Object.entries(map).sort((a, b) => {
-      const dateA = new Date(a[1][0]?.date || 0).getTime();
-      const dateB = new Date(b[1][0]?.date || 0).getTime();
-      return dateB - dateA;
+      return new Date(b[0]).getTime() - new Date(a[0]).getTime();
     });
   }, [filteredTx]);
 
+  const confirmDelete = (id: string) => {
+    deleteTransaction(id);
+    setDeleteConfirmId(null);
+  };
+
   return (
-    <div className="space-y-6 font-mono text-slate-100 pb-12">
+    <div className="space-y-6  text-slate-100 pb-12">
       {/* Top Action Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-[#141824] border border-[#212738] rounded-xl">
         <div>
@@ -133,18 +135,18 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
         </div>
       </div>
 
-      {/* Timeline Grouped by Month */}
-      {groupedByMonth.length === 0 ? (
-        <div className="p-12 text-center bg-[#141824] border border-[#212738] rounded-xl text-slate-400 text-sm">
+      {/* Timeline Grouped by Date */}
+      {groupedByDate.length === 0 ? (
+        <div className="p-12 text-center bg-[#111111] border border-[#222222] rounded-xl text-slate-400 text-sm">
           No transactions match your search filter criteria.
         </div>
       ) : (
-        groupedByMonth.map(([monthTitle, txList]) => (
-          <div key={monthTitle} className="space-y-3">
-            {/* Month Badge Header */}
+        groupedByDate.map(([dateString, txList]) => (
+          <div key={dateString} className="space-y-3">
+            {/* Date Badge Header */}
             <div className="flex items-center gap-2 text-xs font-bold text-slate-300 uppercase tracking-wider px-1">
               <Calendar className="w-4 h-4 text-blue-400" />
-              <span>{monthTitle}</span>
+              <span>{dateString}</span>
               <span className="text-[10px] text-slate-500 font-normal">
                 ({txList.length} records)
               </span>
@@ -163,7 +165,7 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
                 return (
                   <div
                     key={tx.id}
-                    className="p-4 bg-[#141824] border border-[#212738] hover:border-slate-700 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
+                    className="p-4 bg-[#111111] border border-[#222222] hover:border-slate-800 rounded-xl transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-sm"
                   >
                     {/* Left Info */}
                     <div className="flex items-center gap-3">
@@ -195,14 +197,13 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
                         </p>
 
                         <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 mt-1">
-                          <span>Date: {tx.date}</span>
                           {tx.notes && <span className="text-slate-300 italic">"{tx.notes}"</span>}
                         </div>
                       </div>
                     </div>
 
                     {/* Right Amount & Fees breakdown */}
-                    <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-[#212738] pt-3 md:pt-0">
+                    <div className="flex items-center justify-between md:justify-end gap-6 border-t md:border-t-0 border-[#222222] pt-3 md:pt-0">
                       <div className="text-right text-xs">
                         <div className="text-slate-400 text-[10px]">Excl. Fees:</div>
                         <div className="font-semibold text-slate-300">
@@ -214,24 +215,49 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
                         <div className="text-sm font-bold text-white mt-1">
                           Total: {tx.currency} {totalAmount.toFixed(2)}
                         </div>
+                        {tx.currency !== settings.baseCurrency && (
+                          <div className="text-[10px] text-slate-500 mt-1">
+                            ~{settings.currencySymbol}{(totalAmount * (tx.currency === 'USD' ? 1.65 : tx.currency === 'AUD' ? 1.09 : 1)).toFixed(2)} {settings.baseCurrency}
+                          </div>
+                        )}
                       </div>
 
                       {/* Action buttons */}
                       <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => onOpenEditModal(tx)}
-                          title="Edit Transaction"
-                          className="p-2 rounded bg-[#1b2233] hover:bg-[#232c42] text-slate-300 hover:text-white transition-colors"
-                        >
-                          <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => deleteTransaction(tx.id)}
-                          title="Delete Record"
-                          className="p-2 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        {deleteConfirmId === tx.id ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-rose-400 font-bold">Are you sure?</span>
+                            <button
+                              onClick={() => confirmDelete(tx.id)}
+                              className="px-2 py-1 rounded bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition-colors"
+                            >
+                              Yes
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirmId(null)}
+                              className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold transition-colors"
+                            >
+                              No
+                            </button>
+                          </div>
+                        ) : (
+                          <>
+                            <button
+                              onClick={() => onOpenEditModal(tx)}
+                              title="Edit Transaction"
+                              className="p-2 rounded bg-[#1b2233] hover:bg-[#232c42] text-slate-300 hover:text-white transition-colors"
+                            >
+                              <Edit2 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeleteConfirmId(tx.id)}
+                              title="Delete Record"
+                              className="p-2 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
