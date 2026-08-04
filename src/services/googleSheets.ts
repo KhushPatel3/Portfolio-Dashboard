@@ -83,7 +83,8 @@ export function parseTransactionsCSV(csvText: string): GoogleSheetsSyncResult {
 
       const quantity = parseFloat(cols[qtyIdx]?.replace(/[^0-9.-]/g, '') || '0');
       const price = parseFloat(cols[priceIdx]?.replace(/[^0-9.-]/g, '') || '0');
-      const dateStr = cols[dateIdx]?.trim() || new Date().toISOString().split('T')[0];
+      const rawDateStr = cols[dateIdx]?.trim();
+      const dateStr = parseCleanDate(rawDateStr);
 
       if (isNaN(quantity) || quantity <= 0 || isNaN(price) || price <= 0) {
         continue;
@@ -127,6 +128,34 @@ export function parseTransactionsCSV(csvText: string): GoogleSheetsSyncResult {
 }
 
 /**
+ * Robust date parser handling Excel ######## truncations, serial numbers, and standard date strings.
+ */
+function parseCleanDate(rawDate?: string): string {
+  if (!rawDate || rawDate.includes('#')) {
+    return new Date().toISOString().split('T')[0];
+  }
+  const trimmed = rawDate.trim();
+
+  // Excel 5-digit serial date number (e.g. 45123)
+  if (/^\d{5}$/.test(trimmed)) {
+    const serial = parseInt(trimmed, 10);
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+    const targetDate = new Date(excelEpoch.getTime() + serial * 86400000);
+    if (!isNaN(targetDate.getTime())) {
+      return targetDate.toISOString().split('T')[0];
+    }
+  }
+
+  // Standard date parsing
+  const parsed = new Date(trimmed);
+  if (!isNaN(parsed.getTime()) && parsed.getFullYear() > 1900 && parsed.getFullYear() < 2100) {
+    return parsed.toISOString().split('T')[0];
+  }
+
+  return new Date().toISOString().split('T')[0];
+}
+
+/**
  * Fetches transactions directly from Google Sheets using public Published CSV URL or Sheet ID
  */
 export async function fetchTransactionsFromGoogleSheet(
@@ -134,20 +163,44 @@ export async function fetchTransactionsFromGoogleSheet(
 ): Promise<GoogleSheetsSyncResult> {
   let fetchUrl = sheetUrlOrId.trim();
 
-  // If user entered a plain Sheet ID (e.g., 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms)
-  if (!fetchUrl.startsWith('http')) {
+  // Extract sheet ID and optional GID from Google Sheets URLs
+  const sheetIdMatch = fetchUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  const gidMatch = fetchUrl.match(/[?&]gid=([0-9]+)/);
+
+  if (sheetIdMatch) {
+    const sheetId = sheetIdMatch[1];
+    const gid = gidMatch ? gidMatch[1] : null;
+    fetchUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv${
+      gid ? `&gid=${gid}` : ''
+    }`;
+  } else if (!fetchUrl.startsWith('http')) {
+    // If user entered a plain Sheet ID
     fetchUrl = `https://docs.google.com/spreadsheets/d/${fetchUrl}/export?format=csv`;
   } else if (fetchUrl.includes('/edit') || fetchUrl.includes('/view')) {
-    // Convert view URL to CSV export link
-    fetchUrl = fetchUrl.replace(/\/edit.*$/, '/export?format=csv').replace(/\/view.*$/, '/export?format=csv');
+    fetchUrl = fetchUrl
+      .replace(/\/edit.*$/, '/export?format=csv')
+      .replace(/\/view.*$/, '/export?format=csv');
   }
 
   try {
     const res = await fetch(fetchUrl);
     if (!res.ok) {
-      throw new Error(`HTTP Error ${res.status}: Could not fetch Google Sheet. Make sure the sheet is public or shared via link.`);
+      throw new Error(
+        `HTTP Error ${res.status}: Could not fetch Google Sheet. Make sure the sheet is public or published to the web.`
+      );
     }
     const csvText = await res.text();
+
+    // Check if Google returned an HTML page (e.g. login redirect or permission prompt)
+    if (csvText.trim().startsWith('<') || csvText.toLowerCase().includes('<!doctype html>')) {
+      return {
+        success: false,
+        transactions: [],
+        error:
+          'Google Sheet is not publicly accessible. Please go to File -> Share -> Publish to web (or set sharing to "Anyone with link can view").',
+      };
+    }
+
     return parseTransactionsCSV(csvText);
   } catch (err) {
     return {

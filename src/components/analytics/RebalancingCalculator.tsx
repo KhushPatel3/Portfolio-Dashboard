@@ -110,9 +110,10 @@ export const RebalancingCalculator: React.FC = () => {
           quantity: Number(plan.sharesChange.toFixed(4)),
           price: Number(plan.currentPrice.toFixed(2)),
           currency: settings.baseCurrency,
-          fee: 0,
+          tradingFee: 0,
+          fxFee: 0,
           date: today,
-          note: `Auto-rebalancing target trade (${plan.targetWeight}% target)`,
+          notes: `Auto-rebalancing target trade (${plan.targetWeight}% target)`,
         });
         executedCount++;
       }

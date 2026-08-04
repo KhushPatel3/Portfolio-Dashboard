@@ -222,20 +222,20 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddTransaction, onOpenAiIn
           <span className="hidden sm:inline">NEW RECORD</span>
         </button>
 
-        {/* Top-Right 3 Timezone Live Clocks: NZD, AUD, EDT */}
+        {/* Top-Right 3 Timezone Live Clocks: NZST, AEST, EST */}
         <div className="hidden xl:flex items-center gap-2.5 text-[11px] text-gray-400 pl-2.5 border-l border-[#262626]">
           <Clock className="w-3.5 h-3.5 text-blue-400 shrink-0" />
           <div className="flex items-center gap-2">
             <span className="px-1.5 py-0.5 bg-[#181818] border border-[#2e2e2e] rounded flex items-center gap-1.5">
-              <span><strong className="text-blue-400">NZD</strong> {nzdTime}</span>
+              <span><strong className="text-blue-400">NZST</strong> {nzdTime}</span>
               <span className={`w-1.5 h-1.5 rounded-full ${nzxOpen ? 'bg-emerald-500' : 'bg-gray-600'}`} title={nzxOpen ? 'Market Open' : 'Market Closed'} />
             </span>
             <span className="px-1.5 py-0.5 bg-[#181818] border border-[#2e2e2e] rounded flex items-center gap-1.5">
-              <span><strong className="text-emerald-400">AUD</strong> {audTime}</span>
+              <span><strong className="text-emerald-400">AEST</strong> {audTime}</span>
               <span className={`w-1.5 h-1.5 rounded-full ${asxOpen ? 'bg-emerald-500' : 'bg-gray-600'}`} title={asxOpen ? 'Market Open' : 'Market Closed'} />
             </span>
             <span className="px-1.5 py-0.5 bg-[#181818] border border-[#2e2e2e] rounded flex items-center gap-1.5">
-              <span><strong className="text-amber-400">EDT</strong> {edtTime}</span>
+              <span><strong className="text-amber-400">EST</strong> {edtTime}</span>
               <span className={`w-1.5 h-1.5 rounded-full ${nyseOpen ? 'bg-emerald-500' : 'bg-gray-600'}`} title={nyseOpen ? 'Market Open' : 'Market Closed'} />
             </span>
           </div>

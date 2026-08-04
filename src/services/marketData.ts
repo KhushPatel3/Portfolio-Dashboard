@@ -176,6 +176,8 @@ class MarketDataService {
         price2: pt2.price,
         pctReturn1,
         pctReturn2,
+        [ticker1]: pctReturn1,
+        comparison: pctReturn2,
       };
     });
   }

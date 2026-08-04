@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { StatCard } from '../common/StatCard';
 import { CompanyLogo } from '../common/CompanyLogo';
+import { TransactionModal } from '../common/TransactionModal';
 import { marketDataService } from '../../services/marketData';
-import { TimeFrame } from '../../types';
+import { TimeFrame, Transaction } from '../../types';
 import {
   DollarSign,
   TrendingUp,
@@ -19,6 +20,9 @@ import {
   Globe2,
   Check,
   SlidersHorizontal,
+  Pencil,
+  Trash2,
+  Plus,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -38,12 +42,22 @@ import {
   CartesianGrid,
 } from 'recharts';
 
+type AllocationCategory = 'sectors' | 'industries' | 'countries' | 'type' | 'positions' | 'regions';
+
 export const DashboardPage: React.FC = () => {
-  const { summary, holdings, transactions, dividends, settings, setSelectedStockModal, setActivePage } =
+  const { summary, holdings, transactions, dividends, settings, deleteTransaction, setSelectedStockModal, setActivePage } =
     usePortfolio();
 
   const [timeframe, setTimeframe] = useState<TimeFrame>('1M');
   const [showAsPercent, setShowAsPercent] = useState<boolean>(false);
+  
+  // Allocation View state
+  const [allocationCategory, setAllocationCategory] = useState<AllocationCategory>('sectors');
+  const [activeSliceIndex, setActiveSliceIndex] = useState<number>(0);
+
+  // Dashboard Transaction Editing State
+  const [isTxModalOpen, setIsTxModalOpen] = useState<boolean>(false);
+  const [editingTx, setEditingTx] = useState<Transaction | null>(null);
 
   // Generate real calendar historical performance chart data
   const generateBenchmarkChartData = () => {
@@ -89,17 +103,38 @@ export const DashboardPage: React.FC = () => {
   else if (dataMin >= 0) splitOffset = 1;
   else splitOffset = dataMax / (dataMax - dataMin);
 
-  // Allocation sector data
-  const sectorMap: Record<string, number> = {};
-  for (const h of holdings) {
-    sectorMap[h.sector] = (sectorMap[h.sector] || 0) + h.marketValue;
-  }
-  const sectorPieData = Object.entries(sectorMap).map(([name, value]) => ({
-    name,
-    value,
-  }));
+  // Multi-Category Allocation Data Builders
+  const buildAllocationData = (): { name: string; value: number }[] => {
+    const map: Record<string, number> = {};
 
-  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b'];
+    for (const h of holdings) {
+      let key = 'Other';
+      if (allocationCategory === 'sectors') key = h.sector || 'Other';
+      else if (allocationCategory === 'industries') key = h.industry || h.sector || 'General';
+      else if (allocationCategory === 'countries') key = h.country || 'USA';
+      else if (allocationCategory === 'type') key = h.assetType || 'Stock';
+      else if (allocationCategory === 'positions') key = h.ticker;
+      else if (allocationCategory === 'regions') {
+        const c = (h.country || '').toUpperCase();
+        if (['USA', 'US', 'CANADA', 'MEXICO'].includes(c)) key = 'North America';
+        else if (['NZ', 'NEW ZEALAND', 'AU', 'AUSTRALIA', 'JAPAN', 'CHINA', 'ASIA'].includes(c)) key = 'Asia-Pacific';
+        else if (['UK', 'GERMANY', 'FRANCE', 'EUROPE', 'NETHERLANDS'].includes(c)) key = 'Europe';
+        else key = 'Global & Emerging';
+      }
+
+      map[key] = (map[key] || 0) + h.marketValue;
+    }
+
+    return Object.entries(map)
+      .map(([name, value]) => ({ name, value }))
+      .sort((a, b) => b.value - a.value);
+  };
+
+  const currentAllocationData = buildAllocationData();
+  const safeActiveIndex = Math.min(activeSliceIndex, Math.max(0, currentAllocationData.length - 1));
+  const activeSliceItem = currentAllocationData[safeActiveIndex] || currentAllocationData[0] || { name: 'N/A', value: 0 };
+
+  const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#64748b', '#f97316', '#14b8a6', '#a855f7'];
 
   // Country breakdown data
   const countryMap: Record<string, number> = {};
@@ -517,7 +552,7 @@ export const DashboardPage: React.FC = () => {
                   <div>
                     <span className="font-bold text-slate-100">{tx.ticker}</span>
                     <p className="text-[10px] text-slate-400">
-                      {tx.type === 'BUY' ? 'Bought' : 'Sold'} {tx.quantity} shares @ {tx.currency} {tx.price.toFixed(2)}
+                      {tx.type === 'BUY' ? 'Bought' : 'Sold'} {tx.quantity} shares @ ${tx.price.toFixed(2)}
                     </p>
                   </div>
                 </div>

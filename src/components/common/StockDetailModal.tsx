@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { usePortfolio } from '../../context/PortfolioContext';
 import { marketDataService } from '../../services/marketData';
 import { TimeFrame } from '../../types';
-import { X, TrendingUp, TrendingDown, Building2, Target, Lightbulb, AlertTriangle, Award, Scale, Check } from 'lucide-react';
+import { X, TrendingUp, TrendingDown, Building2, Target, Lightbulb, AlertTriangle, Award, Scale, Check, RefreshCw, ExternalLink } from 'lucide-react';
 import { ResponsiveContainer, AreaChart, Area, LineChart, Line, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 interface StockDetailModalProps {
@@ -43,7 +43,41 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
     comparisonTicker,
     selectedTimeframe
   );
-  const outlook = marketDataService.getFutureOutlook(ticker);
+  const fallbackOutlook = marketDataService.getFutureOutlook(ticker);
+
+  const [aiOutlook, setAiOutlook] = useState<any>(null);
+  const [isFetchingAiOutlook, setIsFetchingAiOutlook] = useState<boolean>(false);
+
+  const fetchLiveAiOutlook = useCallback(async () => {
+    if (!ticker) return;
+    setIsFetchingAiOutlook(true);
+    try {
+      const res = await fetch('/api/stock-future-outlook', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticker,
+          companyName: meta.name,
+          currentPrice: quote.price,
+        }),
+      });
+      const data = await res.json();
+      if (data.success && data.outlook) {
+        setAiOutlook(data.outlook);
+      }
+    } catch {
+      // Keep fallback outlook on error
+    } finally {
+      setIsFetchingAiOutlook(false);
+    }
+  }, [ticker, meta.name, quote.price]);
+
+  useEffect(() => {
+    setAiOutlook(null);
+    fetchLiveAiOutlook();
+  }, [ticker, fetchLiveAiOutlook]);
+
+  const outlook = aiOutlook || fallbackOutlook;
 
   const isUp = quote.change >= 0;
 
@@ -112,8 +146,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
             <div>
               <span className="text-[10px] text-slate-400 uppercase font-semibold">Live Market Price</span>
               <div className="text-xl font-bold text-slate-100 mt-0.5">
-                {settings.currencySymbol}
-                {quote.price.toFixed(2)}
+                ${quote.price.toFixed(2)}
               </div>
               <div
                 className={`flex items-center gap-1 text-xs font-bold mt-0.5 ${
@@ -232,7 +265,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
                     />
                     <Legend wrapperStyle={{ fontSize: '11px', paddingTop: '10px' }} />
                     <Line
-                      type="monotone"
+                      type="linear"
                       dataKey={ticker}
                       name={`${ticker} Return (%)`}
                       stroke="#10b981"
@@ -240,7 +273,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
                       dot={false}
                     />
                     <Line
-                      type="monotone"
+                      type="linear"
                       dataKey="comparison"
                       name={`${comparisonTicker.split(' ')[0]} Return (%)`}
                       stroke="#f59e0b"
@@ -264,7 +297,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
                       labelStyle={{ color: '#94a3b8', fontSize: '11px' }}
                     />
                     <Area
-                      type="monotone"
+                      type="linear"
                       dataKey="price"
                       stroke={isUp ? '#10b981' : '#ef4444'}
                       strokeWidth={2}
@@ -279,16 +312,27 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
 
           {/* FUTURE OUTLOOK & INVESTMENT DECISION SECTION */}
           <div className="p-5 bg-[#171c2b] border border-[#262f42] rounded-lg space-y-4">
-            <div className="flex items-center justify-between border-b border-[#262f42] pb-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#262f42] pb-3">
               <div className="flex items-center gap-2">
                 <Target className="w-5 h-5 text-blue-400" />
                 <h3 className="text-sm font-bold uppercase tracking-wider text-white">
                   FUTURE OUTLOOK & INVESTMENT ANALYSIS
                 </h3>
               </div>
-              <span className="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold uppercase">
-                CONSENSUS: {outlook.consensus.toUpperCase()}
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={fetchLiveAiOutlook}
+                  disabled={isFetchingAiOutlook}
+                  className="px-2.5 py-1 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40 text-[11px] font-bold hover:bg-blue-500/30 transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  title="Query Google Search & Gemini for real-time Wall Street consensus figures"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isFetchingAiOutlook ? 'animate-spin' : ''}`} />
+                  {isFetchingAiOutlook ? 'SEARCHING AI...' : 'AI SEARCH OUTLOOK'}
+                </button>
+                <span className="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-xs font-bold uppercase">
+                  CONSENSUS: {outlook.consensus.toUpperCase()}
+                </span>
+              </div>
             </div>
 
             {/* Metrics cards */}
@@ -411,7 +455,7 @@ export const StockDetailModal: React.FC<StockDetailModalProps> = ({ ticker, onCl
                       </span>
                       <div>
                         <span className="font-bold text-white">
-                          {tx.quantity} shares @ {tx.currency} {tx.price.toFixed(2)}
+                          {tx.quantity} shares @ ${tx.price.toFixed(2)}
                         </span>
                         <p className="text-[10px] text-slate-400">{tx.date} • Fee: ${tx.tradingFee + tx.fxFee}</p>
                       </div>

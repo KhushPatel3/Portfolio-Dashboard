@@ -118,7 +118,7 @@ const DEFAULT_WATCHLISTS: CustomWatchlist[] = [
 
 const DEFAULT_SETTINGS: UserSettings = {
   baseCurrency: 'NZD',
-  currencySymbol: 'NZ$',
+  currencySymbol: '$',
   refreshIntervalSeconds: 5,
   themeStyle: 'terminal',
   alphaVantageApiKey: '',
@@ -137,15 +137,31 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 
 const LOCAL_STORAGE_TX_KEY = 'terminal_portfolio_transactions_v1';
 const LOCAL_STORAGE_SETTINGS_KEY = 'terminal_portfolio_settings_v1';
+const LOCAL_STORAGE_DELETED_TX_KEY = 'terminal_portfolio_deleted_tx_signatures_v1';
+
+function getTxSignature(tx: { ticker: string; type: string; quantity: number; price: number; date: string }): string {
+  return `${tx.ticker.toUpperCase().trim()}|${tx.type.toUpperCase().trim()}|${Number(tx.quantity)}|${Number(tx.price)}|${tx.date.trim()}`;
+}
 
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Deleted transaction signatures tracker
+  const [deletedTxSignatures, setDeletedTxSignatures] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(LOCAL_STORAGE_DELETED_TX_KEY);
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // Fallback
+    }
+    return [];
+  });
+
   // Load transactions from localStorage or fallback to mock
   const [transactions, setTransactions] = useState<Transaction[]>(() => {
     try {
       const saved = localStorage.getItem(LOCAL_STORAGE_TX_KEY);
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed)) return parsed;
       }
     } catch {
       // Fallback
@@ -279,7 +295,22 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, []);
 
   const deleteTransaction = useCallback((id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+    setTransactions((prev) => {
+      const targetTx = prev.find((t) => t.id === id);
+      if (targetTx) {
+        const sig = getTxSignature(targetTx);
+        setDeletedTxSignatures((prevSigs) => {
+          const nextSigs = Array.from(new Set([...prevSigs, sig, id]));
+          try {
+            localStorage.setItem(LOCAL_STORAGE_DELETED_TX_KEY, JSON.stringify(nextSigs));
+          } catch {
+            // Ignore
+          }
+          return nextSigs;
+        });
+      }
+      return prev.filter((t) => t.id !== id);
+    });
     const nowStr = new Date().toLocaleTimeString();
     setLastUpdatedTime(nowStr);
     setSettings((prev) => ({
@@ -302,8 +333,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const res = await fetchTransactionsFromGoogleSheet(target);
       setIsSyncingSheet(false);
 
-      if (res.success && res.transactions.length > 0) {
-        setTransactions(res.transactions);
+      if (res.success) {
+        const deletedSet = new Set(deletedTxSignatures);
+        const filteredSynced = res.transactions.filter((t) => {
+          const sig = getTxSignature(t);
+          return !deletedSet.has(sig) && !deletedSet.has(t.id);
+        });
+
+        setTransactions(filteredSynced);
         setSettings((prev) => ({
           ...prev,
           lastSyncedTimestamp: new Date().toLocaleTimeString(),
@@ -315,7 +352,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         return false;
       }
     },
-    [settings.googleSheetsUrl, settings.googleSheetsId]
+    [settings.googleSheetsUrl, settings.googleSheetsId, deletedTxSignatures]
   );
 
   const importCSV = useCallback((csvText: string): boolean => {
@@ -352,8 +389,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       // Map currency symbols strictly for NZD, AUD, USD
       if (newSettings.baseCurrency) {
         const symbolMap: Record<string, string> = {
-          NZD: 'NZ$',
-          AUD: 'A$',
+          NZD: '$',
+          AUD: '$',
           USD: '$',
         };
         updated.currencySymbol = symbolMap[newSettings.baseCurrency] || '$';
@@ -428,10 +465,12 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   const resetData = useCallback(() => {
     setTransactions([]);
+    setDeletedTxSignatures([]);
     setSettings(DEFAULT_SETTINGS);
     setSyncError(null);
     localStorage.removeItem(LOCAL_STORAGE_TX_KEY);
     localStorage.removeItem(LOCAL_STORAGE_SETTINGS_KEY);
+    localStorage.removeItem(LOCAL_STORAGE_DELETED_TX_KEY);
   }, []);
 
   return (

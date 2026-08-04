@@ -20,6 +20,20 @@ interface TransactionsPageProps {
   onOpenEditModal: (tx: Transaction) => void;
 }
 
+const getExchangeRate = (from: string, to: string): number => {
+  if (from === to) return 1;
+  const ratesToUSD: Record<string, number> = {
+    USD: 1,
+    NZD: 0.61,
+    AUD: 0.66,
+    EUR: 1.09,
+    GBP: 1.28,
+  };
+  const fromInUSD = ratesToUSD[from] || 1;
+  const toInUSD = ratesToUSD[to] || 1;
+  return fromInUSD / toInUSD;
+};
+
 export const TransactionsPage: React.FC<TransactionsPageProps> = ({
   onOpenAddModal,
   onOpenEditModal,
@@ -192,8 +206,7 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
 
                         {/* Quantity @ Price string */}
                         <p className="text-xs font-bold text-slate-200 mt-1">
-                          {tx.type === 'BUY' ? 'Bought' : 'Sold'} {tx.quantity} shares @ {tx.currency}{' '}
-                          {tx.price.toFixed(2)}
+                          {tx.type === 'BUY' ? 'Bought' : 'Sold'} {tx.quantity} shares @ ${tx.price.toFixed(2)}
                         </p>
 
                         <div className="flex flex-wrap items-center gap-3 text-[11px] text-slate-400 mt-1">
@@ -207,17 +220,22 @@ export const TransactionsPage: React.FC<TransactionsPageProps> = ({
                       <div className="text-right text-xs">
                         <div className="text-slate-400 text-[10px]">Excl. Fees:</div>
                         <div className="font-semibold text-slate-300">
-                          {tx.currency} {subtotal.toFixed(2)}
+                          ${subtotal.toFixed(2)}
                         </div>
                         <div className="text-[10px] text-slate-400 mt-0.5">
                           Fees (Trading: ${tradingFee} + FX: ${fxFee})
                         </div>
                         <div className="text-sm font-bold text-white mt-1">
-                          Total: {tx.currency} {totalAmount.toFixed(2)}
+                          Total: ${totalAmount.toFixed(2)}
                         </div>
                         {tx.currency !== settings.baseCurrency && (
                           <div className="text-[10px] text-slate-500 mt-1">
-                            ~{settings.currencySymbol}{(totalAmount * (tx.currency === 'USD' ? 1.65 : tx.currency === 'AUD' ? 1.09 : 1)).toFixed(2)} {settings.baseCurrency}
+                            ~{settings.currencySymbol}
+                            {(
+                              totalAmount *
+                              getExchangeRate(tx.currency, settings.baseCurrency)
+                            ).toFixed(2)}{' '}
+                            {settings.baseCurrency}
                           </div>
                         )}
                       </div>

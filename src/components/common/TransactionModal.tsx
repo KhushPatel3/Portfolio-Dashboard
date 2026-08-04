@@ -321,16 +321,16 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           <div className="p-3 bg-[#192030] border border-[#283144] rounded-lg text-xs space-y-1">
             <div className="flex justify-between text-slate-400">
               <span>Subtotal (Excl. fees):</span>
-              <span>{currency} {subtotal.toFixed(2)}</span>
+              <span>${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-slate-400">
               <span>Total Fees (Trading + FX):</span>
-              <span>{currency} {(feeTradingVal + feeFxVal).toFixed(2)}</span>
+              <span>${(feeTradingVal + feeFxVal).toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold text-slate-100 pt-1 border-t border-[#2e394f]">
               <span>Total Amount (Incl. fees):</span>
               <span className={type === 'BUY' ? 'text-blue-400' : 'text-emerald-400'}>
-                {currency} {totalAmount.toFixed(2)}
+                ${totalAmount.toFixed(2)}
               </span>
             </div>
           </div>

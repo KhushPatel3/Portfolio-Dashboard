@@ -7,17 +7,19 @@ import { marketDataService } from '../../services/marketData';
 export const TickerTape: React.FC = () => {
   const { quotes, settings, setSelectedStockModal, holdings } = usePortfolio();
   
-  // Use only current holdings for the market feed
+  // Use only current holdings for the market feed, fallback to default quotes if empty
   const activeQuoteList = holdings.map(h => quotes[h.ticker]).filter(Boolean);
-  
-  // If no holdings, fallback to a few defaults so the feed isn't empty, or just show empty?
-  // User requested: "Market feed should include only current holdings."
-  const quoteList: Quote[] = activeQuoteList.length > 0 ? activeQuoteList : [];
-
-  // Duplicate quotes list for seamless infinite marquee scroll
-  const duplicatedList = [...quoteList, ...quoteList, ...quoteList, ...quoteList];
+  const quoteList: Quote[] = activeQuoteList.length > 0 ? activeQuoteList : Object.values(quotes).slice(0, 8);
 
   if (quoteList.length === 0) return null;
+
+  // Build a repeated list so that the marquee width is large enough to loop infinitely without stopping
+  let baseList: Quote[] = [...quoteList];
+  while (baseList.length < 16) {
+    baseList = [...baseList, ...quoteList];
+  }
+  // Duplicate baseList twice so translateX(-50%) moves seamlessly across identical halves
+  const duplicatedList = [...baseList, ...baseList];
 
   return (
     <div className="w-full bg-[#080808] border-b border-[#262626] overflow-hidden py-1 px-3 text-xs select-none flex items-center relative z-40">
@@ -55,9 +57,8 @@ export const TickerTape: React.FC = () => {
                   />
                 )}
                 <span className="font-bold text-gray-200 hover:text-blue-400  shrink-0">{q.ticker}</span>
-                <span className="text-gray-300  shrink-0">
-                  {settings.currencySymbol}
-                  {q.price.toFixed(2)}
+                <span className="text-gray-300 shrink-0">
+                  ${q.price.toFixed(2)}
                 </span>
                 <span
                   className={`flex items-center gap-0.5 font-bold text-[11px] shrink-0 ${

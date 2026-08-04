@@ -31,10 +31,18 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
   className = '',
   size = 'md',
 }) => {
-  const [error, setError] = useState(false);
+  const [sourceIndex, setSourceIndex] = useState(0);
 
   const cleanTicker = (ticker || '').trim().toUpperCase();
-  const url = logoUrl || `https://assets.parqet.com/logos/symbol/${cleanTicker}?format=png`;
+
+  // Multi-source outsourced external logo URLs
+  const sources = [
+    logoUrl,
+    `https://assets.parqet.com/logos/symbol/${cleanTicker}?format=png`,
+    `https://financialmodelingprep.com/image-stock/${cleanTicker}.png`,
+    `https://img.logo.dev/ticker/${cleanTicker}?token=pk_anonymous`,
+    `https://unavatar.io/symbol/${cleanTicker}`,
+  ].filter(Boolean) as string[];
 
   let sizeClasses = 'w-7 h-7 text-xs';
   let imgSize = 'w-7 h-7';
@@ -52,7 +60,15 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
 
   const colorStyle = BRAND_COLORS[cleanTicker] || 'bg-slate-800 text-slate-300 border-slate-700';
 
-  if (error || !cleanTicker) {
+  const handleError = () => {
+    if (sourceIndex < sources.length - 1) {
+      setSourceIndex(prev => prev + 1);
+    } else {
+      setSourceIndex(-1); // Switch to text badge fallback
+    }
+  };
+
+  if (sourceIndex === -1 || !cleanTicker || sources.length === 0) {
     return (
       <div
         className={`inline-flex items-center justify-center font-bold rounded-lg border shrink-0 ${sizeClasses} ${colorStyle} ${className}`}
@@ -68,11 +84,12 @@ export const CompanyLogo: React.FC<CompanyLogoProps> = ({
       className={`relative inline-flex items-center justify-center rounded-lg bg-slate-900 border border-[#262f42] overflow-hidden shrink-0 ${imgSize} ${className}`}
     >
       <img
-        src={url}
+        src={sources[sourceIndex]}
         alt={`${cleanTicker} logo`}
         className="w-full h-full object-contain p-0.5"
-        onError={() => setError(true)}
+        onError={handleError}
       />
     </div>
   );
 };
+

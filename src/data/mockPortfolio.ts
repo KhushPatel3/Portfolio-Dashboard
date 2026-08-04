@@ -383,6 +383,37 @@ export const ETF_CONSTITUENTS_DATABASE: Record<string, EtfConstituent[]> = {
     { ticker: 'TSM', companyName: 'Taiwan Semiconductor', weightInEtf: 1.8 },
     { ticker: 'NVO', companyName: 'Novo Nordisk', weightInEtf: 0.9 },
   ],
+  VOO: [
+    { ticker: 'NVDA', companyName: 'NVIDIA Corporation', weightInEtf: 6.8 },
+    { ticker: 'MSFT', companyName: 'Microsoft Corporation', weightInEtf: 6.5 },
+    { ticker: 'AAPL', companyName: 'Apple Inc.', weightInEtf: 6.2 },
+    { ticker: 'AMZN', companyName: 'Amazon.com Inc.', weightInEtf: 3.7 },
+    { ticker: 'GOOGL', companyName: 'Alphabet Inc.', weightInEtf: 2.1 },
+    { ticker: 'TSM', companyName: 'Taiwan Semiconductor', weightInEtf: 1.8 },
+  ],
+  QQQ: [
+    { ticker: 'NVDA', companyName: 'NVIDIA Corporation', weightInEtf: 8.9 },
+    { ticker: 'MSFT', companyName: 'Microsoft Corporation', weightInEtf: 8.2 },
+    { ticker: 'AAPL', companyName: 'Apple Inc.', weightInEtf: 7.8 },
+    { ticker: 'AMZN', companyName: 'Amazon.com Inc.', weightInEtf: 5.1 },
+    { ticker: 'GOOGL', companyName: 'Alphabet Inc.', weightInEtf: 3.2 },
+  ],
+  IVV: [
+    { ticker: 'NVDA', companyName: 'NVIDIA Corporation', weightInEtf: 6.8 },
+    { ticker: 'MSFT', companyName: 'Microsoft Corporation', weightInEtf: 6.5 },
+    { ticker: 'AAPL', companyName: 'Apple Inc.', weightInEtf: 6.2 },
+  ],
+  VTI: [
+    { ticker: 'NVDA', companyName: 'NVIDIA Corporation', weightInEtf: 5.8 },
+    { ticker: 'MSFT', companyName: 'Microsoft Corporation', weightInEtf: 5.5 },
+    { ticker: 'AAPL', companyName: 'Apple Inc.', weightInEtf: 5.2 },
+    { ticker: 'AMZN', companyName: 'Amazon.com Inc.', weightInEtf: 3.1 },
+    { ticker: 'GOOGL', companyName: 'Alphabet Inc.', weightInEtf: 1.8 },
+  ],
+  SCHD: [
+    { ticker: 'SHEL', companyName: 'Shell plc', weightInEtf: 4.2 },
+    { ticker: 'NVO', companyName: 'Novo Nordisk', weightInEtf: 3.5 },
+  ],
 };
 
 export const INITIAL_QUOTES: Record<string, Quote> = {

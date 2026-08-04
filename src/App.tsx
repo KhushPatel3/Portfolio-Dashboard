@@ -5,6 +5,7 @@ import { Header } from './components/common/Header';
 import { Sidebar } from './components/common/Sidebar';
 import { TransactionModal } from './components/common/TransactionModal';
 import { StockDetailModal } from './components/common/StockDetailModal';
+import { CommandPaletteModal } from './components/common/CommandPaletteModal';
 
 import { DashboardPage } from './components/pages/DashboardPage';
 import { PortfolioPage } from './components/pages/PortfolioPage';
@@ -79,6 +80,9 @@ const MainAppContent: React.FC = () => {
         ticker={selectedStockModal}
         onClose={() => setSelectedStockModal(null)}
       />
+
+      {/* Command Palette Modal */}
+      <CommandPaletteModal />
     </div>
   );
 };
