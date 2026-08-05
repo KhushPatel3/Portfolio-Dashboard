@@ -263,6 +263,23 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }));
   }, []);
 
+  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoEIhOVjpOefV8RDyEAmgxf_BCki3LmuECjK7LyU82WOKJ9pggEnD9VjRzLbyOdERuRA/exec';
+
+  const saveToGoogleSheets = useCallback(async (txs: Transaction[]) => {
+    try {
+      await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ transactions: txs }),
+      });
+    } catch (error) {
+      console.error('Error syncing transactions to Google Sheets:', error);
+    }
+  }, []);
+
   const addTransaction = useCallback((txData: Omit<Transaction, 'id'>) => {
     const newTx: Transaction = {
       ...txData,
@@ -273,26 +290,32 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       marketDataService.updatePrice(txData.ticker, txData.price);
     }
 
-    setTransactions((prev) => [newTx, ...prev]);
+    setTransactions((prev) => {
+      const next = [newTx, ...prev];
+      saveToGoogleSheets(next);
+      return next;
+    });
     const nowStr = new Date().toLocaleTimeString();
     setLastUpdatedTime(nowStr);
     setSettings((prev) => ({
       ...prev,
       lastSyncedTimestamp: nowStr,
     }));
-  }, []);
+  }, [saveToGoogleSheets]);
 
   const editTransaction = useCallback((id: string, txData: Partial<Transaction>) => {
-    setTransactions((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, ...txData } : t))
-    );
+    setTransactions((prev) => {
+      const next = prev.map((t) => (t.id === id ? { ...t, ...txData } : t));
+      saveToGoogleSheets(next);
+      return next;
+    });
     const nowStr = new Date().toLocaleTimeString();
     setLastUpdatedTime(nowStr);
     setSettings((prev) => ({
       ...prev,
       lastSyncedTimestamp: nowStr,
     }));
-  }, []);
+  }, [saveToGoogleSheets]);
 
   const deleteTransaction = useCallback((id: string) => {
     setTransactions((prev) => {
@@ -309,7 +332,9 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           return nextSigs;
         });
       }
-      return prev.filter((t) => t.id !== id);
+      const next = prev.filter((t) => t.id !== id);
+      saveToGoogleSheets(next);
+      return next;
     });
     const nowStr = new Date().toLocaleTimeString();
     setLastUpdatedTime(nowStr);
@@ -317,7 +342,8 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       ...prev,
       lastSyncedTimestamp: nowStr,
     }));
-  }, []);
+  }, [saveToGoogleSheets]);
+
 
   const syncGoogleSheets = useCallback(
     async (urlOrId?: string): Promise<boolean> => {

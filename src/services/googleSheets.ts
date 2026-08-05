@@ -217,10 +217,6 @@ export async function fetchTransactionsFromGoogleSheet(
 export function generateGoogleSheetsTemplateCSV(): string {
   return [
     'Ticker,Type,Quantity,Price,Currency,Date,Trading Fee,FX Fee,Broker,Notes',
-    'NVDA,BUY,120,48.50,USD,2023-03-15,1.99,0.50,Interactive Brokers,Initial AI play',
-    'AAPL,BUY,50,175.20,USD,2023-05-12,2.50,1.20,Interactive Brokers,DCA',
-    'MSFT,BUY,40,335.00,USD,2023-08-22,3.00,1.50,Interactive Brokers,Cloud growth',
-    'AAPL,SELL,10,218.50,USD,2024-06-25,2.50,0.90,Interactive Brokers,Rebalance',
   ].join('\n');
 }
 

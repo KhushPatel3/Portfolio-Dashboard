@@ -50,6 +50,7 @@ export const DashboardPage: React.FC = () => {
 
   const [timeframe, setTimeframe] = useState<TimeFrame>('1M');
   const [showAsPercent, setShowAsPercent] = useState<boolean>(false);
+  const [showInvestedCapital, setShowInvestedCapital] = useState<boolean>(true);
   
   // Allocation View state
   const [allocationCategory, setAllocationCategory] = useState<AllocationCategory>('sectors');
@@ -81,6 +82,7 @@ export const DashboardPage: React.FC = () => {
         date: pt.date,
         PortfolioValue: portfolioVal,
         PortfolioPercent: portfolioPct,
+        InvestedCapital: baseVal,
       };
     });
   };
@@ -307,7 +309,17 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             {/* Benchmark Toggle Pill Buttons */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={showInvestedCapital}
+                  onChange={(e) => setShowInvestedCapital(e.target.checked)}
+                  className="rounded border-slate-700 bg-[#181818] text-blue-500 focus:ring-blue-500 focus:ring-offset-[#111]"
+                />
+                Invested Capital
+              </label>
+
               <button
                 onClick={() => setShowAsPercent(!showAsPercent)}
                 className="px-2 py-0.5 rounded text-[11px] font-bold border transition-colors bg-blue-600/20 text-blue-400 border-blue-500/50 hover:bg-blue-600/30"
@@ -365,6 +377,18 @@ export const DashboardPage: React.FC = () => {
                   dot={false}
                   name="Portfolio"
                 />
+                
+                {showInvestedCapital && !showAsPercent && (
+                  <Line
+                    type="stepAfter"
+                    dataKey="InvestedCapital"
+                    stroke="#94a3b8"
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={false}
+                    name="Invested Capital"
+                  />
+                )}
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -372,32 +396,42 @@ export const DashboardPage: React.FC = () => {
 
         {/* Allocation Pie Chart */}
         <div className="p-5 bg-[#111111] border border-[#222222] rounded-xl flex flex-col justify-between space-y-4 shadow-lg">
-          <div className="flex items-center justify-between border-b border-[#222222] pb-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100 flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between border-b border-[#222222] pb-3 gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100 flex items-center gap-2 shrink-0">
               <PieIcon className="w-4 h-4 text-blue-400" />
-              SECTOR ALLOCATION
+              ALLOCATION
             </h2>
-            <button
-              onClick={() => setActivePage('allocation')}
-              className="text-xs text-blue-400 hover:underline font-bold"
-            >
-              DRILL-DOWN →
-            </button>
+            <div className="flex flex-wrap items-center gap-1">
+              {(['sectors', 'industries', 'countries', 'type', 'positions', 'regions'] as const).map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setAllocationCategory(cat)}
+                  className={`px-2 py-0.5 text-[10px] rounded font-bold transition-all uppercase ${
+                    allocationCategory === cat
+                      ? 'bg-blue-600 text-white'
+                      : 'text-slate-400 hover:text-white bg-[#181818] border border-[#333]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
           </div>
 
           <div className="h-56 w-full relative flex items-center justify-center">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={sectorPieData}
+                  data={currentAllocationData}
                   cx="50%"
                   cy="50%"
                   innerRadius={55}
                   outerRadius={85}
                   paddingAngle={3}
                   dataKey="value"
+                  onMouseEnter={(_, index) => setActiveSliceIndex(index)}
                 >
-                  {sectorPieData.map((_, index) => (
+                  {currentAllocationData.map((_, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
@@ -412,17 +446,36 @@ export const DashboardPage: React.FC = () => {
                 />
               </PieChart>
             </ResponsiveContainer>
+            {/* Center Label */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+              <span className="text-[10px] text-slate-400 font-bold uppercase truncate max-w-[100px]">
+                {activeSliceItem.name}
+              </span>
+              <span className="text-sm font-bold text-white">
+                {settings.currencySymbol}
+                {activeSliceItem.value >= 1000 ? (activeSliceItem.value / 1000).toFixed(1) + 'k' : activeSliceItem.value.toFixed(0)}
+              </span>
+              <span className="text-[10px] font-bold text-slate-400">
+                {summary.portfolioValue > 0 ? ((activeSliceItem.value / summary.portfolioValue) * 100).toFixed(1) : 0}%
+              </span>
+            </div>
           </div>
 
           <div className="space-y-1.5 max-h-28 overflow-y-auto no-scrollbar text-xs">
-            {sectorPieData.map((sec, i) => (
-              <div key={sec.name} className="flex items-center justify-between text-slate-300">
+            {currentAllocationData.map((sec, i) => (
+              <div
+                key={sec.name}
+                className={`flex items-center justify-between cursor-pointer p-1 rounded transition-colors ${
+                  i === activeSliceIndex ? 'bg-[#1a2235]' : 'hover:bg-[#181818]'
+                }`}
+                onMouseEnter={() => setActiveSliceIndex(i)}
+              >
                 <div className="flex items-center gap-2">
                   <span
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: COLORS[i % COLORS.length] }}
                   />
-                  <span className="truncate">{sec.name}</span>
+                  <span className="truncate text-slate-300">{sec.name}</span>
                 </div>
                 <span className="font-bold text-slate-100">
                   {summary.portfolioValue > 0
@@ -436,8 +489,8 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Row 2: Daily Performance Smooth Line Graph & Country Breakdown */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Row 2: Daily Performance Smooth Line Graph */}
+      <div className="grid grid-cols-1 gap-6">
         {/* Daily Performance Line Graph (Converted from Bar Graph) */}
         <div className="p-5 bg-[#111111] border border-[#222222] rounded-xl space-y-4 shadow-lg">
           <div className="flex items-center justify-between border-b border-[#222222] pb-3">
@@ -479,37 +532,6 @@ export const DashboardPage: React.FC = () => {
                 />
               </AreaChart>
             </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Country Exposure Summary */}
-        <div className="p-5 bg-[#111111] border border-[#222222] rounded-xl space-y-4 shadow-lg">
-          <div className="flex items-center justify-between border-b border-[#222222] pb-3">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-slate-100 flex items-center gap-2">
-              <Globe2 className="w-4 h-4 text-emerald-400" />
-              COUNTRY MAP EXPOSURE
-            </h2>
-            <span className="text-[10px] text-slate-500">{countryList.length} JURISDICTIONS</span>
-          </div>
-
-          <div className="space-y-3">
-            {countryList.map((c) => (
-              <div key={c.country} className="space-y-1">
-                <div className="flex justify-between text-xs font-bold text-slate-200">
-                  <span>{c.country}</span>
-                  <span>
-                    {settings.currencySymbol}
-                    {c.val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ({c.pct.toFixed(1)}%)
-                  </span>
-                </div>
-                <div className="w-full bg-[#181e2e] h-2 rounded overflow-hidden">
-                  <div
-                    className="bg-emerald-500 h-full transition-all duration-500"
-                    style={{ width: `${Math.min(100, c.pct)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
           </div>
         </div>
       </div>
@@ -557,12 +579,37 @@ export const DashboardPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="text-right">
-                  <span className="font-bold text-slate-100">
-                    {settings.currencySymbol}
-                    {(tx.quantity * tx.price).toFixed(2)}
-                  </span>
-                  <p className="text-[10px] text-slate-400">{tx.date}</p>
+                <div className="text-right flex items-center gap-3">
+                  <div>
+                    <span className="font-bold text-slate-100">
+                      {settings.currencySymbol}
+                      {(tx.quantity * tx.price).toFixed(2)}
+                    </span>
+                    <p className="text-[10px] text-slate-400">{tx.date}</p>
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <button
+                      onClick={() => {
+                        setEditingTx(tx);
+                        setIsTxModalOpen(true);
+                      }}
+                      className="p-1 hover:bg-[#20293d] rounded text-blue-400 transition-colors"
+                      title="Edit Transaction"
+                    >
+                      <Pencil className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to delete this ${tx.ticker} transaction?`)) {
+                          deleteTransaction(tx.id);
+                        }
+                      }}
+                      className="p-1 hover:bg-[#20293d] rounded text-rose-400 transition-colors"
+                      title="Delete Transaction"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -617,6 +664,17 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </div>
+      
+      {isTxModalOpen && (
+        <TransactionModal
+          isOpen={isTxModalOpen}
+          onClose={() => {
+            setIsTxModalOpen(false);
+            setEditingTx(null);
+          }}
+          editingTx={editingTx || undefined}
+        />
+      )}
     </div>
   );
 };
